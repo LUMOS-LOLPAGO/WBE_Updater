@@ -31,5 +31,5 @@ jobs:
       - name: Run fetch_summoner_id.py
         run: python .github/scripts/fetch_summoner_id.py
 
-      - name: Run update_summoner_record.py
-        run: python .github/scripts/update_summoner_record.py
+      - name: Run update_summoner_records.py
+        run: python .github/scripts/update_summoner_records.py
