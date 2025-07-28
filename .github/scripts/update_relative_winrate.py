@@ -27,7 +27,7 @@ def update_relative_winrate(tier: str) -> str:
     res = requests.put(url)
     if res.status_code != 200:
         raise ServerRequestError(
-            f"{tier} 티어 상대승률 업데이트 실패: {res.status_code} - {json.loads(res.text)}"
+            f"{tier} 티어 상대승률 업데이트 실패: {res.status_code} - {res.text}"
         )
     return str(json.loads(res.text))
 
