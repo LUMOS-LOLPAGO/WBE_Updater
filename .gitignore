@@ -1,6 +1,8 @@
 .venv/
 __pycache__/
 
+.DS_Store
+
 .env
 
 summoner_ids.txt
