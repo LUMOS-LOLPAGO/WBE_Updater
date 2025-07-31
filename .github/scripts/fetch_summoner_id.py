@@ -1,5 +1,6 @@
 import sys
 import requests
+import argparse
 from common import configure_logger, load_env, ServerRequestError
 
 logger = configure_logger()
@@ -15,7 +16,6 @@ SUMMONER_ID_FILE_PATH = env.get("SUMMONER_ID_FILE_PATH")
 
 # constants
 QUEUE = "RANKED_SOLO_5x5"
-RIOT_API_URL = f"{RIOT_API_KR_ROOT}/lol/league/v4/challengerleagues/by-queue/{QUEUE}?api_key={RIOT_API_KEY}"
 REGION = "KR"
 
 
@@ -36,7 +36,21 @@ def request_upsert_summoner(entry: dict) -> tuple[str, str]:
 
 
 if __name__ == "__main__":
-    # 챌린저 리그에서 소환사 리스트 가져오기
+
+    parser = argparse.ArgumentParser(description="소환사 ID 가져오기")
+    parser.add_argument(
+        "--tier",
+        type=str,
+        choices=["master", "grandmaster", "challenger"],
+        help="가져올 소혼사가 소속된 티어",
+        required=True,
+    )
+
+    target_tier = parser.parse_args().tier
+
+    RIOT_API_URL = f"{RIOT_API_KR_ROOT}/lol/league/v4/{target_tier}leagues/by-queue/{QUEUE}?api_key={RIOT_API_KEY}"
+
+    print(f"소환사 ID를 가져오는 중: {RIOT_API_URL}")
     response = requests.get(RIOT_API_URL)
     entries = response.json().get("entries", [])
 

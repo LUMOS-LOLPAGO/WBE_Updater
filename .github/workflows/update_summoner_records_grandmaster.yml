@@ -1,10 +1,10 @@
-name: 챌린저 소환사 전적 업데이트
+name: 소환사 전적 업데이트 - 그랜드마스터
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # KST 오전 9시 (UTC 00:00)
-    - cron: '0 4 * * *'  # KST 오후 1시 (UTC 04:00)
+    - cron: '0 1 * * *'  # KST 오전 10시 (UTC 01:00)
+    - cron: '0 5 * * *'  # KST 오후 2시 (UTC 05:00)
 
 jobs:
   update-summoner-records:
@@ -29,7 +29,7 @@ jobs:
           pip install -r requirements.txt
           
       - name: Run fetch_summoner_id.py
-        run: python .github/scripts/fetch_summoner_id.py
+        run: python .github/scripts/fetch_summoner_id.py --tier grandmaster
 
       - name: Run update_summoner_records.py
         run: python .github/scripts/update_summoner_records.py
