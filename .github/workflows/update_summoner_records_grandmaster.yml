@@ -2,12 +2,14 @@ name: 소환사 전적 업데이트 - 그랜드마스터
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 1 * * *'  # KST 오전 10시 (UTC 01:00)
-    - cron: '0 5 * * *'  # KST 오후 2시 (UTC 05:00)
+  workflow_run:
+    workflows: ["소환사 전적 업데이트 - 챌린저"]
+    types: 
+      - completed
 
 jobs:
   update-summoner-records:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
       RIOT_API_KR_ROOT: ${{ secrets.RIOT_API_KR_ROOT }}
@@ -28,8 +30,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Run fetch_summoner_id.py
+      - name: Fetch grandmaster summoner IDs
         run: python .github/scripts/fetch_summoner_id.py --tier grandmaster
 
-      - name: Run update_summoner_records.py
+      - name: Update summoner records
         run: python .github/scripts/update_summoner_records.py

@@ -2,12 +2,14 @@ name: 소환사 전적 업데이트 - 마스터
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 2 * * *'  # KST 오전 11시 (UTC 02:00)
-    - cron: '0 6 * * *'  # KST 오후 3시 (UTC 06:00)
+  workflow_run:
+    workflows: ["소환사 전적 업데이트 - 그랜드마스터"]
+    types:
+      - completed
 
 jobs:
   update-summoner-records:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     env:
       RIOT_API_KR_ROOT: ${{ secrets.RIOT_API_KR_ROOT }}
@@ -28,8 +30,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Run fetch_summoner_id.py
+      - name: Fetch master summoner IDs
         run: python .github/scripts/fetch_summoner_id.py --tier master
 
-      - name: Run update_summoner_records.py
+      - name: Update summoner records
         run: python .github/scripts/update_summoner_records.py
