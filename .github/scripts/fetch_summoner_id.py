@@ -17,6 +17,7 @@ SUMMONER_ID_FILE_PATH = env.get("SUMMONER_ID_FILE_PATH")
 # constants
 QUEUE = "RANKED_SOLO_5x5"
 REGION = "KR"
+MAX_SUMMONERS = 300
 
 
 def request_upsert_summoner(entry: dict) -> tuple[str, str]:
@@ -50,9 +51,9 @@ if __name__ == "__main__":
 
     RIOT_API_URL = f"{RIOT_API_KR_ROOT}/lol/league/v4/{target_tier}leagues/by-queue/{QUEUE}?api_key={RIOT_API_KEY}"
 
-    print(f"소환사 ID를 가져오는 중: {RIOT_API_URL}")
     response = requests.get(RIOT_API_URL)
     entries = response.json().get("entries", [])
+    entries = entries[:MAX_SUMMONERS]
 
     success_ids = []
     failed_puuids = []
