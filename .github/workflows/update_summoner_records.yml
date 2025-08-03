@@ -1,19 +1,19 @@
-name: 챌린저 소환사 전적 업데이트
+name: 소환사 전적 업데이트
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # KST 오전 9시 (UTC 00:00)
-    - cron: '0 4 * * *'  # KST 오후 1시 (UTC 04:00)
+    - cron: '0 0 * * *'  # 매일 KST 9시 (UTC 0시)
 
 jobs:
-  update-summoner-records:
+  update-all-tiers:
     runs-on: ubuntu-latest
     env:
       RIOT_API_KR_ROOT: ${{ secrets.RIOT_API_KR_ROOT }}
       RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
       SERVER_URL: ${{ secrets.SERVER_URL }}
       SUMMONER_ID_FILE_PATH: "summoner_ids.txt"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,9 +27,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
-      - name: Run fetch_summoner_id.py
-        run: python .github/scripts/fetch_summoner_id.py
 
-      - name: Run update_summoner_records.py
-        run: python .github/scripts/update_summoner_records.py
+      - name: Run all tiers (순차 실행)
+        run: |
+          TIERS=("challenger" "grandmaster" "master" "diamond" "emerald" "platinum" "gold" "silver" "bronze" "iron")
+          for tier in "${TIERS[@]}"; do
+            echo "🔄 Updating for tier: $tier"
+            python src/fetch_summoner_id.py --tier $tier
+            python src/update_summoner_records.py
+          done
