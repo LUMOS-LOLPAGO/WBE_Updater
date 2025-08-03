@@ -2,6 +2,12 @@ name: 소환사 전적 업데이트
 
 on:
   workflow_dispatch:
+    inputs:
+      tier:
+        description: '업데이트할 티어 (예: challenger, gold, iron 등)'
+        required: false
+        default: 'all'
+
   schedule:
     - cron: '0 0 * * *'  # 매일 KST 9시 (UTC 0시)
 
@@ -28,11 +34,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run all tiers (순차 실행)
+      - name: Run updates
         run: |
-          TIERS=("challenger" "grandmaster" "master" "diamond" "emerald" "platinum" "gold" "silver" "bronze" "iron")
+          INPUT_TIER="${{ github.event.inputs.tier }}"
+          if [ "$INPUT_TIER" = "all" ]; then
+            TIERS=("challenger" "grandmaster" "master" "diamond" "emerald" "platinum" "gold" "silver" "bronze" "iron")
+          else
+            TIERS=("$INPUT_TIER")
+          fi
+
           for tier in "${TIERS[@]}"; do
             echo "🔄 Updating for tier: $tier"
-            python src/fetch_summoner_id.py --tier $tier
+            python src/fetch_summoner_id.py --tier "$tier"
             python src/update_summoner_records.py
           done
