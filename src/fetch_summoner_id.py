@@ -125,4 +125,7 @@ if __name__ == "__main__":
 
     if failed_puuids:
         logger.error(f"실패한 PUUID 목록: {', '.join(failed_puuids)}")
+
+    # 실패한 PUUID가 3개 이상이면 비정상 종료
+    if len(failed_puuids) > 3:
         sys.exit(1)
