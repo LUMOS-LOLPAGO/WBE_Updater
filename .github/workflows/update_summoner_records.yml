@@ -37,7 +37,7 @@ jobs:
       - name: Run updates
         run: |
           INPUT_TIER="${{ github.event.inputs.tier }}"
-          if [ "$INPUT_TIER" = "all" ]; then
+          if [ -z "$INPUT_TIER" ] || [ "$INPUT_TIER" = "all" ]; then
             TIERS=("challenger" "grandmaster" "master" "diamond" "emerald" "platinum" "gold" "silver" "bronze" "iron")
           else
             TIERS=("$INPUT_TIER")
