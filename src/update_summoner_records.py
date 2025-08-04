@@ -1,5 +1,6 @@
 import sys
 import requests
+import json
 from common import configure_logger, load_env, ServerRequestError
 
 logger = configure_logger()
@@ -15,7 +16,7 @@ def update_summoner_record(summoner_id: str) -> str:
     res = requests.post(url, json={"summonerId": summoner_id})
     if res.status_code != 200:
         raise ServerRequestError(f"{summoner_id} 실패: {res.status_code} - {res.text}")
-    return f"summoner_id:{summoner_id} 전적 업데이트 완료"
+    return f"summoner_id:{summoner_id} 전적 업데이트 완료 " + str(json.loads(res.text))
 
 
 if __name__ == "__main__":
