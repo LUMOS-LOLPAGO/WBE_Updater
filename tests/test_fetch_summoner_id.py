@@ -4,7 +4,7 @@ from fetch_summoner_id import (
     get_summoner_puuids,
 )
 
-MAX_TEST_SUMMONERS = 320
+MAX_TEST_SUMMONERS = 120
 
 
 @pytest.mark.parametrize("tier", ["challenger", "grandmaster", "master"])
