@@ -1,15 +1,11 @@
-name: 소환사 전적 업데이트
+name: 하위 티어 소환사 전적 업데이트
 
 on:
   workflow_dispatch:
-    inputs:
-      tier:
-        description: '업데이트할 티어 (예: challenger, gold, iron 등)'
-        required: false
-        default: 'all'
-
-  schedule:
-    - cron: '0 0 * * *'  # 매일 KST 9시 (UTC 0시)
+  workflow_run:
+    workflows: ["중위 티어 소환사 전적 업데이트"]
+    types:
+      - completed
 
 jobs:
   update-all-tiers:
@@ -36,12 +32,7 @@ jobs:
 
       - name: Run updates
         run: |
-          INPUT_TIER="${{ github.event.inputs.tier }}"
-          if [ -z "$INPUT_TIER" ] || [ "$INPUT_TIER" = "all" ]; then
-            TIERS=("challenger" "grandmaster" "master" "diamond" "emerald" "platinum" "gold" "silver" "bronze" "iron")
-          else
-            TIERS=("$INPUT_TIER")
-          fi
+          TIERS=("gold" "silver" "bronze" "iron")
 
           for tier in "${TIERS[@]}"; do
             echo "🔄 Updating for tier: $tier"
