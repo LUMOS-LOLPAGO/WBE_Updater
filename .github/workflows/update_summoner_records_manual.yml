@@ -7,6 +7,9 @@ on:
         description: '업데이트할 티어 (예: challenger, gold, iron 등)'
         required: true
 
+env:
+  TZ: Asia/Seoul
+
 jobs:
   update-all-tiers:
     runs-on: ubuntu-latest

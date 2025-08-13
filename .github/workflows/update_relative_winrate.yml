@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 4 * * *'  # KST 오후 1시 (UTC 04:00)
 
+env:
+  TZ: Asia/Seoul
+
 jobs:
   update-relative-winrate:
     runs-on: ubuntu-latest

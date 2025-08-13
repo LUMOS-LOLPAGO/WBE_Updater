@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 0 * * *'  # 매일 KST 9시 (UTC 0시)
 
+env:
+  TZ: Asia/Seoul
+
 jobs:
   update-all-tiers:
     runs-on: ubuntu-latest
