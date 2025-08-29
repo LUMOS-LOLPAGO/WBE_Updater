@@ -1,0 +1,15 @@
+[project]
+name = "wbe-updater"
+version = "0.1.0"
+description = "A tool to update WBE files."
+readme = "README.md"
+requires-python = "==3.10.18"
+dependencies = [
+    "python-dotenv>=1.1.1",
+    "requests>=2.32.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
