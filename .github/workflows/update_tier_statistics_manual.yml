@@ -1,4 +1,4 @@
-name: 특정 티어 소환사 전적 업데이트
+name: 특정 티어 통계 업데이트
 
 on:
   workflow_dispatch:
@@ -39,5 +39,5 @@ jobs:
           INPUT_TIER="${{ github.event.inputs.tier }}"
 
           echo "🔄 Updating for tier: $INPUT_TIER"
-          uv run src/fetch_summoner_id.py --tier "$INPUT_TIER"
-          uv run src/update_summoner_records.py
+          uv run src/fetch_matches.py --tier "$INPUT_TIER"
+          uv run src/update_statistics.py

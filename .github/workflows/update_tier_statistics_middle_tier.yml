@@ -1,9 +1,11 @@
-name: 상위 티어 소환사 전적 업데이트
+name: 중위 티어 통계 업데이트
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'  # 매일 KST 9시 (UTC 0시)
+  workflow_run:
+    workflows: ["상위 티어 통계 업데이트"]
+    types:
+      - completed
 
 env:
   TZ: Asia/Seoul
@@ -34,10 +36,10 @@ jobs:
 
       - name: Run updates
         run: |
-          TIERS=("challenger" "grandmaster" "master")
+          TIERS=("diamond" "emerald" "platinum")
 
           for tier in "${TIERS[@]}"; do
             echo "🔄 Updating for tier: $tier"
-            uv run src/fetch_summoner_id.py --tier "$tier"
-            uv run src/update_summoner_records.py
+            uv run src/fetch_matches.py --tier "$tier"
+            uv run src/update_statistics.py
           done
