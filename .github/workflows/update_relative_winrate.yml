@@ -3,7 +3,7 @@ name: 상대승률 업데이트
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 4 * * *'  # KST 오후 1시 (UTC 04:00)
+    - cron: '0 17 * * *'  # 매일 KST 2시 (UTC 17시)
 
 env:
   TZ: Asia/Seoul

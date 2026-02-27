@@ -3,7 +3,7 @@ name: 상위 티어 통계 업데이트
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # 매일 KST 9시 (UTC 0시)
+    - cron: '0 16 * * *'  # 매일 KST 1시 (UTC 16시)
 
 env:
   TZ: Asia/Seoul

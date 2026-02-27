@@ -3,7 +3,7 @@ name: 오래된 소환사 정보 업데이트
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 4 * * *'  # KST 오후 1시 (UTC 04:00)
+    - cron: '0 19 * * *'  # 매일 KST 4시 (UTC 19시)
 
 env:
   TZ: Asia/Seoul
