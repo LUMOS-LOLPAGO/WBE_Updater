@@ -11,7 +11,7 @@ SERVER_URL = env.get("SERVER_URL")
 
 URL = f"{SERVER_URL}/summoners/update-stale"
 MAX_RETRIES = 3
-DEFAULT_LIMIT = 1000
+DEFAULT_LIMIT = 5000
 
 
 def update_stale_summoners(limit: int) -> tuple[int, int, int]:
