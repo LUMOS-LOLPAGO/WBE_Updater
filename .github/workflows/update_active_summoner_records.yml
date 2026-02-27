@@ -1,0 +1,32 @@
+name: 활성 소환사 전적 업데이트
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'  # 매 정각 1시간마다
+
+env:
+  TZ: Asia/Seoul
+
+jobs:
+  update-active-summoner-records:
+    runs-on: ubuntu-latest
+    env:
+      SERVER_URL: ${{ secrets.SERVER_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install the project
+        run: uv sync --locked --no-dev
+
+      - name: Run update_active_summoner_records.py
+        run: uv run src/update_active_summoner_records.py
