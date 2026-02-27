@@ -27,6 +27,22 @@ def update_active_summoner_records(summoner_ids: list[str]) -> tuple[int, int, i
 
     for summoner_id in summoner_ids:
         try:
+            refresh_res = requests.post(f"{SERVER_URL}/summoners/{summoner_id}/refresh")
+
+            if refresh_res.status_code == 204:
+                skipped_count += 1
+                retries = 0
+                logger.info(
+                    f"[스킵:{skipped_count}] {summoner_id} - 소환사 정보 없음 (삭제됨)"
+                )
+                continue
+            elif refresh_res.status_code == 200:
+                logger.info(f"[갱신성공] {summoner_id} - 소환사 정보 최신화 완료")
+            else:
+                logger.warning(
+                    f"[갱신실패] {summoner_id} - {refresh_res.status_code} {refresh_res.text}"
+                )
+
             res = requests.post(
                 f"{SERVER_URL}/matches/update",
                 json={"summonerId": summoner_id},
@@ -78,9 +94,7 @@ if __name__ == "__main__":
     logger.info(f"활성 소환사 {len(summoner_ids)}명 전적 업데이트 시작")
 
     success, skipped, failures = update_active_summoner_records(summoner_ids)
-    logger.info(
-        f"완료 | 성공: {success}건, 스킵: {skipped}건, 실패: {failures}건"
-    )
+    logger.info(f"완료 | 성공: {success}건, 스킵: {skipped}건, 실패: {failures}건")
 
     if failures > 0:
         sys.exit(1)
