@@ -1,23 +1,25 @@
 import sys
+import json
 import requests
 import argparse
+import time
 from common import configure_logger, load_env, ServerRequestError
 
 logger = configure_logger()
 
 # 환경 변수 불러오기
-env = load_env(
-    ["RIOT_API_KR_ROOT", "RIOT_API_KEY", "SERVER_URL", "SUMMONER_ID_FILE_PATH"]
-)
+env = load_env(["RIOT_API_KR_ROOT", "RIOT_API_KEY"])
 RIOT_API_KR_ROOT = env.get("RIOT_API_KR_ROOT")
 RIOT_API_KEY = env.get("RIOT_API_KEY")
-SERVER_URL = env.get("SERVER_URL")
-SUMMONER_ID_FILE_PATH = env.get("SUMMONER_ID_FILE_PATH")
+RIOT_API_ASIA_ROOT = "https://asia.api.riotgames.com"
+
+# JSON 형태로 결과가 저장될 경로
+SUMMONER_MATCHES_FILE_PATH = "summoner_matches.json"
 
 # constants
 QUEUE = "RANKED_SOLO_5x5"
-REGION = "KR"
-MAX_SUMMONERS = 180
+MAX_SUMMONERS = 200
+MATCH_COUNT = 30
 DIVISIONS = ["I", "II", "III", "IV"]
 
 
@@ -52,7 +54,7 @@ def get_summoner_puuids(target_tier: str) -> list[str]:
 
         entries = response.json()
 
-        # 각 division별로 80명씩, 총 320명까지 가져오기
+        # 각 division별로 나누어 추출
         result_puuids.extend(
             [entry["puuid"] for entry in entries[: (MAX_SUMMONERS // len(DIVISIONS))]]
         )
@@ -60,23 +62,36 @@ def get_summoner_puuids(target_tier: str) -> list[str]:
     return result_puuids
 
 
-def request_upsert_summoner(puuid: str) -> tuple[str, str]:
-    body = {"puuid": puuid, "region": REGION}
-    res = requests.post(f"{SERVER_URL}/summoners", json=body)
+def fetch_recent_match_ids(puuid: str) -> list[str]:
+    queues = [420, 440]
+    match_ids = set()
 
-    if res.status_code not in [201, 409]:
-        raise ServerRequestError(f"{puuid} 실패: {res.status_code} - {res.text}")
+    for queue in queues:
+        url = f"{RIOT_API_ASIA_ROOT}/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={MATCH_COUNT}&queue={queue}&api_key={RIOT_API_KEY}"
 
-    data = res.json()
-    return (
-        data["id"],
-        f"{data['name']}#{data['tag']} (PUUID: {puuid}, ID: {data['id']}) 저장 완료",
-    )
+        retries = 3
+        for i in range(retries):
+            res = requests.get(url)
+            if res.status_code == 200:
+                match_ids.update(res.json())
+                break
+            elif res.status_code == 429:
+                retry_after = int(res.headers.get("Retry-After", 2))
+                logger.warning(
+                    f"요청 한도 초과 (PUUID {puuid}, queue {queue}). {retry_after}초 대기 후 재시도..."
+                )
+                time.sleep(retry_after)
+            else:
+                logger.error(
+                    f"매치 아이디 가져오기 실패 (PUUID: {puuid}, Queue: {queue}): {res.status_code} - {res.text}"
+                )
+                break
+
+    return list(match_ids)
 
 
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description="소환사 ID 가져오기")
+    parser = argparse.ArgumentParser(description="소환사 매치 ID 가져오기")
     parser.add_argument(
         "--tier",
         type=str,
@@ -92,7 +107,7 @@ if __name__ == "__main__":
             "bronze",
             "iron",
         ],
-        help="가져올 소혼사가 소속된 티어",
+        help="가져올 소환사가 소속된 티어",
         required=True,
     )
 
@@ -106,26 +121,32 @@ if __name__ == "__main__":
         target_tier = target_tier.upper()
         puuids = get_summoner_puuids(target_tier)
 
-    success_ids = []
+    puuid_match_map = {}
     failed_puuids = []
 
-    for puuid in puuids:
+    logger.info(f"총 {len(puuids)}명의 소환사 PUUID 발견. 매치 ID 수집 시작...")
+
+    for i, puuid in enumerate(puuids):
         try:
-            summoner_id, result_message = request_upsert_summoner(puuid)
-            logger.info(result_message)
-            success_ids.append(summoner_id)
-        except ServerRequestError as e:
-            logger.error(f"소환사 정보 저장 실패: {e}")
+            matches = fetch_recent_match_ids(puuid)
+            puuid_match_map[puuid] = matches
+            logger.info(
+                f"[{i + 1}/{len(puuids)}] {puuid}: 매치 {len(matches)}개 수집 완료"
+            )
+        except Exception as e:
+            logger.error(f"PUUID {puuid} 매치 수집 중 에러 발생: {e}")
             failed_puuids.append(puuid)
 
-    # ID들을 jsonl로 저장
-    with open(SUMMONER_ID_FILE_PATH, "w", encoding="utf-8") as f:
-        for sid in success_ids:
-            f.write(f"{sid}\n")
+    # 결과를 json으로 저장
+    with open(SUMMONER_MATCHES_FILE_PATH, "w", encoding="utf-8") as f:
+        json.dump(puuid_match_map, f, indent=4, ensure_ascii=False)
+
+    logger.info(
+        f"{SUMMONER_MATCHES_FILE_PATH} 에 총 {len(puuid_match_map)}명 유저의 데이터 저장 완료."
+    )
 
     if failed_puuids:
-        logger.error(f"실패한 PUUID 목록: {', '.join(failed_puuids)}")
+        logger.error(f"매치 수집 실패한 PUUID 목록: {', '.join(failed_puuids)}")
 
-    # 실패한 PUUID가 3개 이상이면 비정상 종료
     if len(failed_puuids) > 3:
         sys.exit(1)

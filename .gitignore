@@ -5,4 +5,4 @@ __pycache__/
 
 .env
 
-summoner_ids.txt
+summoner_matches.json
