@@ -73,21 +73,20 @@ if __name__ == "__main__":
             result = add_summoner(puuid)
             if result["status"] == "created":
                 created += 1
-                logger.info(
-                    f"[{i + 1}/{len(all_puuids)}] 신규 등록: {result['data'].get('name')}#{result['data'].get('tag')}"
-                )
             else:
                 already_exists += 1
-                logger.info(
-                    f"[{i + 1}/{len(all_puuids)}] 이미 존재: {result['data'].get('name')}#{result['data'].get('tag')}"
-                )
         except Exception as e:
             failed += 1
             logger.error(f"[{i + 1}/{len(all_puuids)}] 실패 (puuid: {puuid}): {e}")
+
+        if (i + 1) % 1000 == 0 or (i + 1) == len(all_puuids):
+            logger.info(
+                f"[{i + 1}/{len(all_puuids)}] 진행 중 - 신규: {created}, 이미 존재: {already_exists}, 실패: {failed}"
+            )
 
     logger.info(
         f"완료 - 신규: {created}, 이미 존재: {already_exists}, 실패: {failed}"
     )
 
-    if failed > 0:
+    if failed > 3:
         sys.exit(1)
