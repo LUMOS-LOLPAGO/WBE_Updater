@@ -1,8 +1,6 @@
 .venv/
 __pycache__/
-
 .DS_Store
-
 .env
-
 summoner_matches.json
+CLAUDE.md
