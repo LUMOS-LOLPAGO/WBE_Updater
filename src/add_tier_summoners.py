@@ -1,4 +1,3 @@
-import sys
 import time
 import argparse
 import requests
@@ -31,10 +30,11 @@ def get_puuids_high_tier(tier: str) -> list[str]:
     return [entry["puuid"] for entry in entries if "puuid" in entry]
 
 
-def get_puuids_regular_tier(tier: str) -> list[str]:
+def get_puuids_regular_tier(tier: str, division: str | None = None) -> list[str]:
     all_puuids = []
+    divisions = [division] if division else DIVISIONS
 
-    for division in DIVISIONS:
+    for division in divisions:
         page = 1
         while True:
             url = (
@@ -120,16 +120,25 @@ if __name__ == "__main__":
         required=True,
         help="추가할 소환사의 티어",
     )
+    parser.add_argument(
+        "--division",
+        type=str,
+        choices=DIVISIONS,
+        default=None,
+        help="특정 디비전만 처리 (일반 티어 전용)",
+    )
     args = parser.parse_args()
     tier = args.tier
+    division = args.division
 
     # 소환사 PUUID 수집
     if tier in HIGH_TIERS:
         logger.info(f"{tier} 티어 소환사 목록 조회 중...")
         puuids = get_puuids_high_tier(tier)
     else:
-        logger.info(f"{tier} 티어 소환사 목록 조회 중 (전 디비전)...")
-        puuids = get_puuids_regular_tier(tier)
+        label = f"{tier} {division}" if division else f"{tier} 전 디비전"
+        logger.info(f"{label} 소환사 목록 조회 중...")
+        puuids = get_puuids_regular_tier(tier, division)
 
     logger.info(f"총 {len(puuids)}명의 소환사 등록 시작...")
 
@@ -156,6 +165,3 @@ if __name__ == "__main__":
     logger.info(
         f"완료 - 신규: {created}, 이미 존재: {already_exists}, 실패: {failed}"
     )
-
-    if failed > 3:
-        sys.exit(1)
