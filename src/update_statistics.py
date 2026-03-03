@@ -1,6 +1,8 @@
-import sys
 import json
+import sys
+
 import requests
+
 from common import configure_logger, load_env
 
 logger = configure_logger()
@@ -26,7 +28,8 @@ def update_statistics(match_ids: list[str]) -> dict:
     for i in range(0, len(match_ids), BATCH_SIZE):
         chunk = match_ids[i : i + BATCH_SIZE]
         logger.info(
-            f"[{i + 1}/{min(i + BATCH_SIZE, len(match_ids))}] 번째 매치 그룹 전송 중 (총 {len(match_ids)}개)..."
+            f"[{i + 1}/{min(i + BATCH_SIZE, len(match_ids))}] 번째 매치 그룹 전송 중 "
+            f"(총 {len(match_ids)}개)..."
         )
 
         try:

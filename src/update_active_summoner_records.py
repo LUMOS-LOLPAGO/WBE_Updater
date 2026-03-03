@@ -1,6 +1,8 @@
 import sys
 import time
+
 import requests
+
 from common import configure_logger, load_env
 
 logger = configure_logger()
@@ -32,9 +34,7 @@ def update_active_summoner_records(summoner_ids: list[str]) -> tuple[int, int, i
             if refresh_res.status_code == 204:
                 skipped_count += 1
                 retries = 0
-                logger.info(
-                    f"[스킵:{skipped_count}] {summoner_id} - 소환사 정보 없음 (삭제됨)"
-                )
+                logger.info(f"[스킵:{skipped_count}] {summoner_id} - 소환사 정보 없음 (삭제됨)")
                 continue
             elif refresh_res.status_code == 200:
                 logger.info(f"[갱신성공] {summoner_id} - 소환사 정보 최신화 완료")
@@ -60,10 +60,7 @@ def update_active_summoner_records(summoner_ids: list[str]) -> tuple[int, int, i
             else:
                 failure_count += 1
                 retries = 0
-                logger.error(
-                    f"[실패:{failure_count}] {summoner_id} - "
-                    f"{res.status_code} {res.text}"
-                )
+                logger.error(f"[실패:{failure_count}] {summoner_id} - {res.status_code} {res.text}")
 
         except requests.exceptions.ConnectionError:
             retries += 1

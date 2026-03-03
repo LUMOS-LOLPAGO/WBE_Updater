@@ -1,7 +1,9 @@
 import sys
 import time
+
 import requests
-from common import configure_logger, load_env, ServerRequestError
+
+from common import ServerRequestError, configure_logger, load_env
 
 logger = configure_logger()
 
@@ -36,9 +38,7 @@ def refresh_summoner(summoner_id: str) -> None:
     if res.status_code == 200:
         logger.info(f"소환사 정보 갱신 완료 (id: {summoner_id})")
     else:
-        logger.warning(
-            f"소환사 정보 갱신 실패 (id: {summoner_id}): {res.status_code} - {res.text}"
-        )
+        logger.warning(f"소환사 정보 갱신 실패 (id: {summoner_id}): {res.status_code} - {res.text}")
 
 
 def add_summoner(puuid: str) -> dict:
@@ -62,9 +62,7 @@ def add_summoner(puuid: str) -> dict:
             logger.warning(f"요청 한도 초과. {retry_after}초 대기 후 재시도...")
             time.sleep(retry_after)
         else:
-            raise ServerRequestError(
-                f"소환사 추가 실패: {res.status_code} - {res.text}"
-            )
+            raise ServerRequestError(f"소환사 추가 실패: {res.status_code} - {res.text}")
 
     raise ServerRequestError("재시도 횟수 초과")
 
@@ -97,12 +95,11 @@ if __name__ == "__main__":
 
         if (i + 1) % 1000 == 0 or (i + 1) == len(all_puuids):
             logger.info(
-                f"[{i + 1}/{len(all_puuids)}] 진행 중 - 신규: {created}, 이미 존재: {already_exists}, 실패: {failed}"
+                f"[{i + 1}/{len(all_puuids)}] 진행 중 - "
+                f"신규: {created}, 이미 존재: {already_exists}, 실패: {failed}"
             )
 
-    logger.info(
-        f"완료 - 신규: {created}, 이미 존재: {already_exists}, 실패: {failed}"
-    )
+    logger.info(f"완료 - 신규: {created}, 이미 존재: {already_exists}, 실패: {failed}")
 
     if failed > 3:
         sys.exit(1)

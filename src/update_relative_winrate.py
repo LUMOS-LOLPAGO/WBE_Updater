@@ -1,7 +1,9 @@
-import sys
-import requests
 import json
-from common import configure_logger, load_env, ServerRequestError
+import sys
+
+import requests
+
+from common import ServerRequestError, configure_logger, load_env
 
 logger = configure_logger()
 

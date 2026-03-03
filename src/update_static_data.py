@@ -1,6 +1,6 @@
 import requests
-import json
-from common import configure_logger, load_env, ServerRequestError
+
+from common import ServerRequestError, configure_logger, load_env
 
 logger = configure_logger()
 
@@ -19,9 +19,7 @@ def update_static_data(ddragon_version: str) -> None:
 
     res = requests.put(url, params=params)
     if res.status_code != 200:
-        raise ServerRequestError(
-            f"정적 데이터 업데이트 요청 실패: {res.status_code} - {res.text}"
-        )
+        raise ServerRequestError(f"정적 데이터 업데이트 요청 실패: {res.status_code} - {res.text}")
 
 
 # 최신 dDragon 버전 정보를 가져오는 함수

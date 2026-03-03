@@ -1,9 +1,11 @@
-import sys
-import json
-import requests
 import argparse
+import json
+import sys
 import time
-from common import configure_logger, load_env, ServerRequestError
+
+import requests
+
+from common import ServerRequestError, configure_logger, load_env
 
 logger = configure_logger()
 
@@ -24,14 +26,15 @@ DIVISIONS = ["I", "II", "III", "IV"]
 
 
 def get_summoner_puuids_high_tier(target_tier: str) -> list[str]:
-    RIOT_API_URL = f"{RIOT_API_KR_ROOT}/lol/league/v4/{target_tier}leagues/by-queue/{QUEUE}?api_key={RIOT_API_KEY}"
+    RIOT_API_URL = (
+        f"{RIOT_API_KR_ROOT}/lol/league/v4/{target_tier}leagues/by-queue/{QUEUE}"
+        f"?api_key={RIOT_API_KEY}"
+    )
 
     response = requests.get(RIOT_API_URL)
 
     if response.status_code != 200:
-        raise ServerRequestError(
-            f"API 요청 실패: {response.status_code} - {response.text}"
-        )
+        raise ServerRequestError(f"API 요청 실패: {response.status_code} - {response.text}")
 
     entries = response.json().get("entries", [])
     entries = entries[:MAX_SUMMONERS]
@@ -43,14 +46,15 @@ def get_summoner_puuids(target_tier: str) -> list[str]:
     result_puuids = []
 
     for division in DIVISIONS:
-        RIOT_API_URL = f"{RIOT_API_KR_ROOT}/lol/league/v4/entries/{QUEUE}/{target_tier}/{division}?api_key={RIOT_API_KEY}"
+        RIOT_API_URL = (
+            f"{RIOT_API_KR_ROOT}/lol/league/v4/entries/{QUEUE}/{target_tier}/{division}"
+            f"?api_key={RIOT_API_KEY}"
+        )
 
         response = requests.get(RIOT_API_URL)
 
         if response.status_code != 200:
-            raise ServerRequestError(
-                f"API 요청 실패: {response.status_code} - {response.text}"
-            )
+            raise ServerRequestError(f"API 요청 실패: {response.status_code} - {response.text}")
 
         entries = response.json()
 
@@ -67,7 +71,10 @@ def fetch_recent_match_ids(puuid: str) -> list[str]:
     match_ids = set()
 
     for queue in queues:
-        url = f"{RIOT_API_ASIA_ROOT}/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={MATCH_COUNT}&queue={queue}&api_key={RIOT_API_KEY}"
+        url = (
+            f"{RIOT_API_ASIA_ROOT}/lol/match/v5/matches/by-puuid/{puuid}/ids"
+            f"?start=0&count={MATCH_COUNT}&queue={queue}&api_key={RIOT_API_KEY}"
+        )
 
         retries = 3
         for i in range(retries):
@@ -78,12 +85,14 @@ def fetch_recent_match_ids(puuid: str) -> list[str]:
             elif res.status_code == 429:
                 retry_after = int(res.headers.get("Retry-After", 2))
                 logger.warning(
-                    f"요청 한도 초과 (PUUID {puuid}, queue {queue}). {retry_after}초 대기 후 재시도..."
+                    f"요청 한도 초과 (PUUID {puuid}, queue {queue}). "
+                    f"{retry_after}초 대기 후 재시도..."
                 )
                 time.sleep(retry_after)
             else:
                 logger.error(
-                    f"매치 아이디 가져오기 실패 (PUUID: {puuid}, Queue: {queue}): {res.status_code} - {res.text}"
+                    f"매치 아이디 가져오기 실패 (PUUID: {puuid}, Queue: {queue}): "
+                    f"{res.status_code} - {res.text}"
                 )
                 break
 
@@ -130,9 +139,7 @@ if __name__ == "__main__":
         try:
             matches = fetch_recent_match_ids(puuid)
             puuid_match_map[puuid] = matches
-            logger.info(
-                f"[{i + 1}/{len(puuids)}] {puuid}: 매치 {len(matches)}개 수집 완료"
-            )
+            logger.info(f"[{i + 1}/{len(puuids)}] {puuid}: 매치 {len(matches)}개 수집 완료")
         except Exception as e:
             logger.error(f"PUUID {puuid} 매치 수집 중 에러 발생: {e}")
             failed_puuids.append(puuid)

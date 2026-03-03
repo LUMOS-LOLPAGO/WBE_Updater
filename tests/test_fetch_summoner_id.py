@@ -1,7 +1,7 @@
 import pytest
 from fetch_summoner_id import (
-    get_summoner_puuids_high_tier,
     get_summoner_puuids,
+    get_summoner_puuids_high_tier,
 )
 
 MAX_TEST_SUMMONERS = 180

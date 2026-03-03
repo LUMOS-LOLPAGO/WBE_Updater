@@ -1,6 +1,8 @@
 import sys
 import time
+
 import requests
+
 from common import configure_logger, load_env
 
 logger = configure_logger()
