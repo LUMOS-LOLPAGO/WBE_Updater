@@ -50,12 +50,12 @@ def add_summoner(puuid: str) -> dict:
         res = requests.post(url, json=payload)
 
         if res.status_code == 201:
-            return {"status": "created", "data": res.json()}
+            data = res.json()
+            refresh_summoner(data["summonerId"])
+            return {"status": "created", "data": data}
         elif res.status_code == 409:
             data = res.json()
-            summoner_id = data.get("summonerId")
-            if summoner_id:
-                refresh_summoner(summoner_id)
+            refresh_summoner(data["summonerId"])
             return {"status": "already_exists", "data": data}
         elif res.status_code == 429:
             retry_after = int(res.headers.get("Retry-After", 5))
