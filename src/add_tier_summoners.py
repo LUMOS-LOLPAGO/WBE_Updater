@@ -44,7 +44,7 @@ def get_puuids_regular_tier(tier: str, division: str | None = None) -> list[str]
                 f"?page={page}&api_key={RIOT_API_KEY}"
             )
 
-            retries = 3
+            retries = 10
             response = None
             for attempt in range(retries):
                 response = requests.get(url)
