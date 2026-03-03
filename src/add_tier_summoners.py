@@ -94,10 +94,10 @@ def add_summoner(puuid: str) -> dict:
             time.sleep(retry_after)
         else:
             raise ServerRequestError(
-                f"소환사 추가 실패 (puuid: {puuid}): {res.status_code} - {res.text}"
+                f"소환사 추가 실패: {res.status_code} - {res.text}"
             )
 
-    raise ServerRequestError(f"재시도 횟수 초과 (puuid: {puuid})")
+    raise ServerRequestError("재시도 횟수 초과")
 
 
 if __name__ == "__main__":
