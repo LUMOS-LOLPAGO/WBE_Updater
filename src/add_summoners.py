@@ -29,6 +29,18 @@ def get_all_puuids_high_tier(tier: str) -> list[str]:
     return [entry["puuid"] for entry in entries if "puuid" in entry]
 
 
+def refresh_summoner(summoner_id: str) -> None:
+    url = f"{SERVER_URL}/summoners/{summoner_id}/refresh"
+    res = requests.post(url)
+
+    if res.status_code == 200:
+        logger.info(f"소환사 정보 갱신 완료 (id: {summoner_id})")
+    else:
+        logger.warning(
+            f"소환사 정보 갱신 실패 (id: {summoner_id}): {res.status_code} - {res.text}"
+        )
+
+
 def add_summoner(puuid: str) -> dict:
     url = f"{SERVER_URL}/summoners"
     payload = {"puuid": puuid, "region": REGION}
@@ -40,7 +52,11 @@ def add_summoner(puuid: str) -> dict:
         if res.status_code == 201:
             return {"status": "created", "data": res.json()}
         elif res.status_code == 409:
-            return {"status": "already_exists", "data": res.json()}
+            data = res.json()
+            summoner_id = data.get("summonerId")
+            if summoner_id:
+                refresh_summoner(summoner_id)
+            return {"status": "already_exists", "data": data}
         elif res.status_code == 429:
             retry_after = int(res.headers.get("Retry-After", 5))
             logger.warning(f"요청 한도 초과. {retry_after}초 대기 후 재시도...")
