@@ -1,4 +1,4 @@
-name: 특정 티어 소환사 일괄 추가
+name: 특정 디비전 소환사 일괄 추가
 
 on:
   workflow_dispatch:
@@ -8,9 +8,6 @@ on:
         required: true
         type: choice
         options:
-          - challenger
-          - grandmaster
-          - master
           - DIAMOND
           - EMERALD
           - PLATINUM
@@ -18,13 +15,21 @@ on:
           - SILVER
           - BRONZE
           - IRON
+      division:
+        description: '추가할 디비전'
+        required: true
+        type: choice
+        options:
+          - I
+          - II
+          - III
+          - IV
 
 env:
   TZ: Asia/Seoul
 
 jobs:
-  add-high-tier:
-    if: ${{ contains(fromJSON('["challenger","grandmaster","master"]'), inputs.tier) }}
+  add-tier:
     runs-on: ubuntu-latest
     env:
       RIOT_API_KR_ROOT: ${{ secrets.RIOT_API_KR_ROOT }}
@@ -46,35 +51,5 @@ jobs:
       - name: Install the project
         run: uv sync --locked --no-dev
 
-      - name: Add summoners for ${{ inputs.tier }}
-        run: uv run src/add_tier_summoners.py --tier ${{ inputs.tier }}
-
-  add-regular-tier:
-    if: ${{ !contains(fromJSON('["challenger","grandmaster","master"]'), inputs.tier) }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        division: [I, II, III, IV]
-    env:
-      RIOT_API_KR_ROOT: ${{ secrets.RIOT_API_KR_ROOT }}
-      RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
-      SERVER_URL: ${{ secrets.SERVER_URL }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: "pyproject.toml"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-
-      - name: Install the project
-        run: uv sync --locked --no-dev
-
-      - name: Add summoners for ${{ inputs.tier }} ${{ matrix.division }}
-        run: uv run src/add_tier_summoners.py --tier ${{ inputs.tier }} --division ${{ matrix.division }}
+      - name: Add summoners for ${{ inputs.tier }} ${{ inputs.division }}
+        run: uv run src/add_tier_summoners.py --tier ${{ inputs.tier }} --division ${{ inputs.division }}
