@@ -31,6 +31,9 @@ env:
 jobs:
   add-tier:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        chunk: [0, 1, 2, 3]
     env:
       RIOT_API_KR_ROOT: ${{ secrets.RIOT_API_KR_ROOT }}
       RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
@@ -51,5 +54,5 @@ jobs:
       - name: Install the project
         run: uv sync --locked --no-dev
 
-      - name: Add summoners for ${{ inputs.tier }} ${{ inputs.division }}
-        run: uv run src/add_tier_summoners.py --tier ${{ inputs.tier }} --division ${{ inputs.division }}
+      - name: Add summoners for ${{ inputs.tier }} ${{ inputs.division }} (chunk ${{ matrix.chunk }})
+        run: uv run src/add_tier_summoners.py --tier ${{ inputs.tier }} --division ${{ inputs.division }} --chunk-index ${{ matrix.chunk }} --total-chunks 4
