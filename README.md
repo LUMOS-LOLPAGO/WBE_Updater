@@ -20,7 +20,7 @@
 ├── src/
 │   ├── common.py                          # 공통 유틸리티 (로거, 환경변수 로드)
 │   ├── add_summoners.py                   # 상위 소환사 일괄 추가
-│   ├── add_tier_summoners.py              # 특정 티어 소환사 추가
+│   ├── add_tier_summoners.py              # 특정 디비전 소환사 추가
 │   ├── fetch_matches.py                   # 티어별 매치 ID 수집
 │   ├── update_statistics.py               # 매치 통계 업데이트
 │   ├── update_active_summoner_records.py   # 활성 소환사 전적 업데이트
@@ -67,7 +67,7 @@ uv run src/update_statistics.py
 # 상위 소환사 일괄 추가
 uv run src/add_summoners.py
 
-# 특정 티어 소환사 추가
+# 특정 디비전 소환사 추가
 uv run src/add_tier_summoners.py --tier DIAMOND --division I
 
 # 상대승률 업데이트
@@ -107,5 +107,5 @@ pytest                 # 테스트
 | 오래된 소환사 정보 갱신     | 매일 04:00 (KST)        | 가장 오래 갱신되지 않은 소환사부터 순차 처리. Riot API에 없는 소환사는 삭제                            |
 | 활성 소환사 전적 업데이트   | 매 1시간 (정각)         | 소환사 최신 정보 갱신 후 전적 업데이트. Riot API에 없는 소환사는 삭제 후 생략                          |
 | 정적 데이터 업데이트        | 매주 월요일 00:00 (KST) | DDragon 기반 챔피언·아이템·룬·스킬·스펠 정보 갱신                                                     |
-| 특정 티어 소환사 일괄 추가  | 수동 실행 전용          | 원하는 티어·디비전의 소환사를 수동 추가. 일반 티어는 디비전별 병렬 실행                                |
+| 특정 디비전 소환사 일괄 추가 | 수동 실행 전용          | 다이아몬드 이하 특정 티어+디비전의 소환사를 수동 추가                                                 |
 | 특정 티어 통계 업데이트     | 수동 실행 전용          | 원하는 티어의 매치 수집 및 통계 업데이트                                                              |
