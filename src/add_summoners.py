@@ -51,11 +51,11 @@ def add_summoner(puuid: str) -> dict:
 
         if res.status_code == 201:
             data = res.json()
-            refresh_summoner(data["summonerId"])
+            refresh_summoner(data["id"])
             return {"status": "created", "data": data}
         elif res.status_code == 409:
             data = res.json()
-            refresh_summoner(data["summonerId"])
+            refresh_summoner(data["id"])
             return {"status": "already_exists", "data": data}
         elif res.status_code == 429:
             retry_after = int(res.headers.get("Retry-After", 5))
