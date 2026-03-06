@@ -101,5 +101,5 @@ if __name__ == "__main__":
 
     logger.info(f"완료 - 신규: {created}, 이미 존재: {already_exists}, 실패: {failed}")
 
-    if failed > 3:
+    if failed > 30:
         sys.exit(1)
